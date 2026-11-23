@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Dilutions · ELISA Studio{% endblock %}
+{% block content %}
+  <h1>Reagent dilutions</h1>
+  <p class="lede">Mix a concentrated stock down to the working concentration for coating, blocking, wash buffer, or antibodies. The volume to pipette is C1V1 = C2V2, calculated in the browser.</p>
+  <noscript>
+    <p class="flash flash-error">Dilution volumes need JavaScript.</p>
+  </noscript>
+
+  <form id="dilution-form" autocomplete="off">
+    <fieldset>
+      <legend>Stocks and targets</legend>
+      <p class="hint">Use the same kind of unit for the stock and the target: mg/mL through pg/mL, percent, or X. 1 mg/mL is 1000 µg/mL. A 10X stock brought to 1X in 100 mL takes 10 mL of stock and 90 mL of diluent.</p>
+      <p> Use this to calculate dilutions for stocks, buffers, etc. </p>
+      <p>example values: name (ovalbumin), stock (5 mg/ml), target (10ug/ml), volume (6 ml)</p>
+      <p>example 2: name (buffer), stock (10X), target (1X), volume (100 ml)</p>
+      <div id="dilution-rows">
+        <article class="reagent-card" data-kind="reagent">
+          <div class="fields">
+            <div>
+              <label for="reagent-1-name" data-for="name">Name</label>
+              <input id="reagent-1-name" data-field="name" maxlength="80" placeholder="Ovalbumin">
+            </div>
+            <div>
+              <label for="reagent-1-stock" data-for="stock">Stock concentration</label>
+              <div class="pair">
+                <input id="reagent-1-stock" data-field="stock" inputmode="decimal" spellcheck="false">
+                <select id="reagent-1-stock-unit" data-field="stock-unit" aria-label="Stock unit">
+                  <option value="mg/mL">mg/mL</option>
+                  <option value="µg/mL" selected>µg/mL</option>
+                  <option value="ng/mL">ng/mL</option>
+                  <option value="pg/mL">pg/mL</option>
+                  <option value="%">%</option>
+                  <option value="X">X</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="reagent-1-target" data-for="target">Target concentration</label>
+              <div class="pair">
+                <input id="reagent-1-target" data-field="target" inputmode="decimal" spellcheck="false">
+                <select id="reagent-1-target-unit" data-field="target-unit" aria-label="Target unit">
+                  <option value="mg/mL">mg/mL</option>
+                  <option value="µg/mL" selected>µg/mL</option>
+                  <option value="ng/mL">ng/mL</option>
+                  <option value="pg/mL">pg/mL</option>
+                  <option value="%">%</option>
+                  <option value="X">X</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="reagent-1-volume" data-for="volume">Final volume</label>
+              <div class="pair">
+                <input id="reagent-1-volume" data-field="volume" inputmode="decimal" spellcheck="false">
+                <select id="reagent-1-volume-unit" data-field="volume-unit" aria-label="Final volume unit">
+                  <option value="µL">µL</option>
+                  <option value="mL" selected>mL</option>
+                  <option value="L">L</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <p class="dilution-result" data-field="result" aria-live="polite"></p>
+          <button type="button" class="button-quiet" data-action="remove-reagent">Remove</button>
+        </article>
+      </div>
+      <button type="button" data-action="add-reagent">Add reagent</button>
+    </fieldset>
+  </form>
+
+  <template id="reagent-template">
+    <article class="reagent-card" data-kind="reagent">
+      <div class="fields">
+        <div>
+          <label data-for="name">Name</label>
+          <input data-field="name" maxlength="80">
+        </div>
+        <div>
+          <label data-for="stock">Stock concentration</label>
+          <div class="pair">
+            <input data-field="stock" inputmode="decimal" spellcheck="false">
+            <select data-field="stock-unit" aria-label="Stock unit">
+              <option value="mg/mL">mg/mL</option>
+              <option value="µg/mL" selected>µg/mL</option>
+              <option value="ng/mL">ng/mL</option>
+              <option value="pg/mL">pg/mL</option>
+              <option value="%">%</option>
+              <option value="X">X</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label data-for="target">Target concentration</label>
+          <div class="pair">
+            <input data-field="target" inputmode="decimal" spellcheck="false">
+            <select data-field="target-unit" aria-label="Target unit">
+              <option value="mg/mL">mg/mL</option>
+              <option value="µg/mL" selected>µg/mL</option>
+              <option value="ng/mL">ng/mL</option>
+              <option value="pg/mL">pg/mL</option>
+              <option value="%">%</option>
+              <option value="X">X</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label data-for="volume">Final volume</label>
+          <div class="pair">
+            <input data-field="volume" inputmode="decimal" spellcheck="false">
+            <select data-field="volume-unit" aria-label="Final volume unit">
+              <option value="µL">µL</option>
+              <option value="mL" selected>mL</option>
+              <option value="L">L</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <p class="dilution-result" data-field="result" aria-live="polite"></p>
+      <button type="button" class="button-quiet" data-action="remove-reagent">Remove</button>
+    </article>
+  </template>
+{% endblock %}
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/dilutions.js') }}"></script>
+{% endblock %}

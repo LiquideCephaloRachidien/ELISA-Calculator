@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}Calculator · ELISA Studio{% endblock %}
+{% block content %}
+  <h1>ELISA calculator</h1>
+  <p class="lede">Enter optical densities for known standards and unknown samples. The standard curve is calculated in the browser. If not done already, <a href="{{ url_for('public.dilutions') }}">dilute reagents</a> before plating.</p>
+  <noscript>
+    <p class="flash flash-error">This calculator needs JavaScript to plot the curve and flag replicate disagreements.</p>
+  </noscript>
+
+  <form id="assay-form" autocomplete="off">
+    <fieldset>
+      <legend>Assay</legend>
+      <div class="fields">
+        <div>
+          <label for="assay-title">Title</label>
+          <input id="assay-title" name="title" maxlength="120" spellcheck="true">
+        </div>
+        <div>
+          <label for="unit">Concentration unit</label>
+          <input id="unit" name="unit" list="unit-options" value="pg/mL" maxlength="20" spellcheck="false">
+          <datalist id="unit-options">
+            <option value="pg/mL"></option>
+            <option value="ng/mL"></option>
+            <option value="µg/mL"></option>
+            <option value="ng/L"></option>
+            <option value="U/mL"></option>
+          </datalist>
+        </div>
+        <div>
+          <label for="blank-od">Blank optical density</label>
+          <input id="blank-od" name="blank_od" inputmode="decimal" value="0" spellcheck="false" aria-describedby="blank-hint">
+          <p id="blank-hint" class="hint">Subtracted from every replicate before the means are taken. Leave 0 if the standards are already blanked.</p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Plate</legend>
+      <p class="hint">Click a well, then enter its optical density. A standard also needs the concentration in that well. A sample needs a name.</p>
+      <div class="plate-layout">
+        <div class="plate-scroll">
+          <div id="plate" role="group" aria-label="96-well plate"></div>
+          <ul class="plate-key">
+            <li><span class="swatch" data-role="blank"></span> Blank</li>
+            <li><span class="swatch" data-role="standard"></span> Standard</li>
+            <li><span class="swatch" data-role="sample"></span> Sample</li>
+          </ul>
+        </div>
+        <div id="well-editor" hidden>
+          <p id="well-label"></p>
+          <div>
+            <label for="well-od">Optical density</label>
+            <input id="well-od" inputmode="decimal" spellcheck="false" autocomplete="off">
+          </div>
+          <div>
+            <label for="well-role">Role</label>
+            <select id="well-role">
+              <option value="empty">Empty</option>
+              <option value="blank">Blank</option>
+              <option value="standard">Standard</option>
+              <option value="sample">Sample</option>
+            </select>
+          </div>
+          <div id="well-concentration-field" hidden>
+            <label for="well-concentration">Concentration</label>
+            <input id="well-concentration" inputmode="decimal" spellcheck="false" autocomplete="off">
+          </div>
+          <div id="well-name-field" hidden>
+            <label for="well-name">Sample name</label>
+            <input id="well-name" maxlength="80" autocomplete="off">
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Standards</legend>
+      <p class="hint">Known concentrations already in the well. Two replicates each. Empty rows are ignored.</p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Concentration</th>
+              <th scope="col">Replicate 1</th>
+              <th scope="col">Replicate 2</th>
+              <th scope="col">Mean OD</th>
+              <th scope="col">Difference</th>
+              <th scope="col"><span class="visually-hidden">Remove</span></th>
+            </tr>
+          </thead>
+          <tbody id="standards-body">
+            {% for i in range(1, 5) %}
+              <tr data-kind="standard">
+                <td><input data-field="concentration" inputmode="decimal" spellcheck="false" aria-label="Standard {{ i }} concentration"></td>
+                <td><input data-field="replicate-1" inputmode="decimal" spellcheck="false" aria-label="Standard {{ i }} replicate 1"></td>
+                <td><input data-field="replicate-2" inputmode="decimal" spellcheck="false" aria-label="Standard {{ i }} replicate 2"></td>
+                <td data-field="mean">—</td>
+                <td data-field="difference">—</td>
+                <td><button type="button" data-action="remove-row">Remove</button></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" data-action="add-standard">Add standard</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Unknown samples</legend>
+      <p class="hint">Dilution multiplies the concentration read off the curve. Use 1 when the sample was not diluted.</p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Dilution</th>
+              <th scope="col">Replicate 1</th>
+              <th scope="col">Replicate 2</th>
+              <th scope="col">Mean OD</th>
+              <th scope="col">Difference</th>
+              <th scope="col">Concentration</th>
+              <th scope="col"><span class="visually-hidden">Remove</span></th>
+            </tr>
+          </thead>
+          <tbody id="samples-body">
+            {% for i in range(1, 3) %}
+              <tr data-kind="sample">
+                <td><input data-field="name" maxlength="80" aria-label="Sample {{ i }} name"></td>
+                <td><input data-field="dilution" inputmode="decimal" value="1" spellcheck="false" aria-label="Sample {{ i }} dilution"></td>
+                <td><input data-field="replicate-1" inputmode="decimal" spellcheck="false" aria-label="Sample {{ i }} replicate 1"></td>
+                <td><input data-field="replicate-2" inputmode="decimal" spellcheck="false" aria-label="Sample {{ i }} replicate 2"></td>
+                <td data-field="mean">—</td>
+                <td data-field="difference">—</td>
+                <td data-field="result">—</td>
+                <td><button type="button" data-action="remove-row">Remove</button></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" data-action="add-sample">Add sample</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Notes</legend>
+      <label for="notes" class="visually-hidden">Notes</label>
+      <textarea id="notes" name="notes" maxlength="2000" rows="4" placeholder="Kit lot, plate number, anything you want kept with a saved run."></textarea>
+    </fieldset>
+
+    <section aria-labelledby="results-heading">
+      <h2 id="results-heading">Standard curve</h2>
+      <p id="fit-status">Enter at least two standards to plot the curve.</p>
+      <canvas id="curve-canvas" width="640" height="360" role="img" aria-label="Standard curve plot"></canvas>
+      <dl id="fit-summary" hidden>
+        <div><dt>Slope</dt><dd data-field="slope">—</dd></div>
+        <div><dt>Intercept</dt><dd data-field="intercept">—</dd></div>
+        <div><dt>R²</dt><dd data-field="r2">—</dd></div>
+      </dl>
+    </section>
+  </form>
+
+  <template id="standard-row-template">
+    <tr data-kind="standard">
+      <td><input data-field="concentration" inputmode="decimal" spellcheck="false" aria-label="Standard concentration"></td>
+      <td><input data-field="replicate-1" inputmode="decimal" spellcheck="false" aria-label="Standard replicate 1"></td>
+      <td><input data-field="replicate-2" inputmode="decimal" spellcheck="false" aria-label="Standard replicate 2"></td>
+      <td data-field="mean">—</td>
+      <td data-field="difference">—</td>
+      <td><button type="button" data-action="remove-row">Remove</button></td>
+    </tr>
+  </template>
+  <template id="sample-row-template">
+    <tr data-kind="sample">
+      <td><input data-field="name" maxlength="80" aria-label="Sample name"></td>
+      <td><input data-field="dilution" inputmode="decimal" value="1" spellcheck="false" aria-label="Sample dilution"></td>
+      <td><input data-field="replicate-1" inputmode="decimal" spellcheck="false" aria-label="Sample replicate 1"></td>
+      <td><input data-field="replicate-2" inputmode="decimal" spellcheck="false" aria-label="Sample replicate 2"></td>
+      <td data-field="mean">—</td>
+      <td data-field="difference">—</td>
+      <td data-field="result">—</td>
+      <td><button type="button" data-action="remove-row">Remove</button></td>
+    </tr>
+  </template>
+{% endblock %}
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/curve.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/plot.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/plate.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/calculator.js') }}"></script>
+{% endblock %}

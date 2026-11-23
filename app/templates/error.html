@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · ELISA Studio{% endblock %}
+{% block content %}
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
+  <p><a href="{{ url_for('public.home') }}">Back to the calculator</a></p>
+{% endblock %}

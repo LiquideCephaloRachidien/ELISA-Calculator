@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · ELISA Studio{% endblock %}
+{% block content %}
+  <h1>Lab dashboard</h1>
+  <p class="lede">Saved standard curves and notes stay with your account.</p>
+  <p><a href="{{ url_for('public.home') }}">Open the calculator</a></p>
+  {% if runs %}
+    <ul class="run-list">
+      {% for run in runs %}
+        <li>{{ run.title }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No saved runs yet.</p>
+  {% endif %}
+{% endblock %}
