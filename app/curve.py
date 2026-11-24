@@ -52,7 +52,27 @@ def percent_difference(a: float, b: float) -> float | None:
 
 def fit_line(points: list[dict]) -> dict | None:
     """Return {"slope", "intercept", "r2"} or None when a line cannot be fit."""
-    raise NotImplementedError
+    count = len(points)
+    if count < 2:
+        return None
+    sum_x = sum(point["x"] for point in points)
+    sum_y = sum(point["y"] for point in points)
+    sum_xy = sum(point["x"] * point["y"] for point in points)
+    sum_xx = sum(point["x"] * point["x"] for point in points)
+    denominator = count * sum_xx - sum_x * sum_x
+    if denominator == 0:
+        return None
+    slope = (count * sum_xy - sum_x * sum_y) / denominator
+    intercept = (sum_y - slope * sum_x) / count
+    mean_y = sum_y / count
+    ss_residual = 0.0
+    ss_total = 0.0
+    for point in points:
+        predicted = slope * point["x"] + intercept
+        ss_residual += (point["y"] - predicted) ** 2
+        ss_total += (point["y"] - mean_y) ** 2
+    r2 = None if ss_total == 0 else 1 - ss_residual / ss_total
+    return {"slope": slope, "intercept": intercept, "r2": r2}
 
 
 def predict_concentration(

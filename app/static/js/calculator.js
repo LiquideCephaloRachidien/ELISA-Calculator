@@ -50,6 +50,51 @@
     return value.toFixed(4).replace(/\.?0+$/, "");
   }
 
+  function formatStat(value) {
+    if (value === null || !isFinite(value)) {
+      return "—";
+    }
+    return String(Math.round(value * 10000) / 10000);
+  }
+
+  function standardPoints() {
+    var list = [];
+    Array.prototype.forEach.call(rows(), function (row) {
+      var concentration = parseDecimal(field(row, "concentration").value);
+      var first = parseDecimal(field(row, "od-1").value);
+      var second = parseDecimal(field(row, "od-2").value);
+      if (concentration === null || first === null || second === null) {
+        return;
+      }
+      list.push({ x: concentration, y: (first + second) / 2 });
+    });
+    return list;
+  }
+
+  function plotCurve() {
+    var canvas = document.getElementById("curve-canvas");
+    var status = document.getElementById("fit-status");
+    var summary = document.getElementById("fit-summary");
+    if (!canvas || !status || !summary || !window.ElisaCurve || !window.ElisaPlot) {
+      return;
+    }
+    var data = standardPoints();
+    var line = window.ElisaCurve.fitLine(data);
+    window.ElisaPlot.drawCurve(canvas, data, line);
+    if (!line) {
+      summary.hidden = true;
+      status.textContent = data.length < 2
+        ? "Enter at least two standards to plot the curve."
+        : "These standards share one concentration, so a line cannot be fit.";
+      return;
+    }
+    summary.hidden = false;
+    summary.querySelector('[data-field="slope"]').textContent = formatStat(line.slope);
+    summary.querySelector('[data-field="intercept"]').textContent = formatStat(line.intercept);
+    summary.querySelector('[data-field="r2"]').textContent = formatStat(line.r2);
+    status.textContent = "Line fitted to " + data.length + " standards.";
+  }
+
   function updateAverage(row) {
     var first = parseDecimal(field(row, "od-1").value);
     var second = parseDecimal(field(row, "od-2").value);
@@ -78,6 +123,7 @@
     body.appendChild(row);
     labelRows();
     field(row, "concentration").focus();
+    plotCurve();
   }
 
   function removeRow(row) {
@@ -86,10 +132,12 @@
         input.value = "";
       });
       updateAverage(row);
+      plotCurve();
       return;
     }
     row.remove();
     labelRows();
+    plotCurve();
   }
 
   body.addEventListener("input", function (event) {
@@ -98,6 +146,7 @@
       return;
     }
     updateAverage(row);
+    plotCurve();
   });
 
   body.addEventListener("click", function (event) {
@@ -116,5 +165,11 @@
     addRow();
   });
 
+  var unit = document.getElementById("unit");
+  if (unit) {
+    unit.addEventListener("input", plotCurve);
+  }
+  window.addEventListener("resize", plotCurve);
   labelRows();
+  plotCurve();
 })();

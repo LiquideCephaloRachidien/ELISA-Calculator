@@ -2,7 +2,7 @@
 {% block title %}Calculator · ELISA Studio{% endblock %}
 {% block content %}
   <h1>ELISA calculator</h1>
-  <p class="lede">Enter optical densities for known standards and unknown samples. The standard curve is calculated in the browser. If not done already, <a href="{{ url_for('public.dilutions') }}">dilute reagents</a> before plating.</p>
+  <p class="lede">Enter optical densities for known standards. The standard curve is calculated in the browser. If not done already, <a href="{{ url_for('public.dilutions') }}">dilute reagents</a> before plating.</p>
   <noscript>
     <p class="flash flash-error">This calculator needs JavaScript to plot the curve and flag replicate disagreements.</p>
   </noscript>
@@ -86,6 +86,17 @@
       <button type="button" data-action="add-standard">Add standard</button>
     </fieldset>
 
+    <section aria-labelledby="results-heading">
+      <h2 id="results-heading">Standard curve</h2>
+      <p id="fit-status">Enter at least two standards to plot the curve.</p>
+      <canvas id="curve-canvas" width="640" height="360" role="img" aria-label="Standard curve plot"></canvas>
+      <dl id="fit-summary" hidden>
+        <div><dt>Slope</dt><dd data-field="slope">—</dd></div>
+        <div><dt>Intercept</dt><dd data-field="intercept">—</dd></div>
+        <div><dt>R²</dt><dd data-field="r2">—</dd></div>
+      </dl>
+    </section>
+
     <fieldset>
       <legend>Assay</legend>
       <div class="fields">
@@ -113,57 +124,10 @@
     </fieldset>
 
     <fieldset>
-      <legend>Unknown samples</legend>
-      <p class="hint">Dilution multiplies the concentration read off the curve. Use 1 when the sample was not diluted.</p>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Dilution</th>
-              <th scope="col">Replicate 1</th>
-              <th scope="col">Replicate 2</th>
-              <th scope="col">Mean OD</th>
-              <th scope="col">Difference</th>
-              <th scope="col">Concentration</th>
-              <th scope="col"><span class="visually-hidden">Remove</span></th>
-            </tr>
-          </thead>
-          <tbody id="samples-body">
-            {% for i in range(1, 3) %}
-              <tr data-kind="sample">
-                <td><input data-field="name" maxlength="80" aria-label="Sample {{ i }} name"></td>
-                <td><input data-field="dilution" inputmode="decimal" value="1" spellcheck="false" aria-label="Sample {{ i }} dilution"></td>
-                <td><input data-field="replicate-1" inputmode="decimal" spellcheck="false" aria-label="Sample {{ i }} replicate 1"></td>
-                <td><input data-field="replicate-2" inputmode="decimal" spellcheck="false" aria-label="Sample {{ i }} replicate 2"></td>
-                <td data-field="mean">—</td>
-                <td data-field="difference">—</td>
-                <td data-field="result">—</td>
-                <td><button type="button" data-action="remove-row">Remove</button></td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <button type="button" data-action="add-sample">Add sample</button>
-    </fieldset>
-
-    <fieldset>
       <legend>Notes</legend>
       <label for="notes" class="visually-hidden">Notes</label>
       <textarea id="notes" name="notes" maxlength="2000" rows="4" placeholder="Kit lot, plate number, anything you want kept with a saved run."></textarea>
     </fieldset>
-
-    <section aria-labelledby="results-heading">
-      <h2 id="results-heading">Standard curve</h2>
-      <p id="fit-status">Enter at least two standards to plot the curve.</p>
-      <canvas id="curve-canvas" width="640" height="360" role="img" aria-label="Standard curve plot"></canvas>
-      <dl id="fit-summary" hidden>
-        <div><dt>Slope</dt><dd data-field="slope">—</dd></div>
-        <div><dt>Intercept</dt><dd data-field="intercept">—</dd></div>
-        <div><dt>R²</dt><dd data-field="r2">—</dd></div>
-      </dl>
-    </section>
   </form>
 
   <template id="standard-row-template">
@@ -173,18 +137,6 @@
       <td><input data-field="od-1" inputmode="decimal" spellcheck="false" aria-label="Standard optical density 1"></td>
       <td><input data-field="od-2" inputmode="decimal" spellcheck="false" aria-label="Standard optical density 2"></td>
       <td data-field="average">—</td>
-      <td><button type="button" data-action="remove-row">Remove</button></td>
-    </tr>
-  </template>
-  <template id="sample-row-template">
-    <tr data-kind="sample">
-      <td><input data-field="name" maxlength="80" aria-label="Sample name"></td>
-      <td><input data-field="dilution" inputmode="decimal" value="1" spellcheck="false" aria-label="Sample dilution"></td>
-      <td><input data-field="replicate-1" inputmode="decimal" spellcheck="false" aria-label="Sample replicate 1"></td>
-      <td><input data-field="replicate-2" inputmode="decimal" spellcheck="false" aria-label="Sample replicate 2"></td>
-      <td data-field="mean">—</td>
-      <td data-field="difference">—</td>
-      <td data-field="result">—</td>
       <td><button type="button" data-action="remove-row">Remove</button></td>
     </tr>
   </template>
