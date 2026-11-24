@@ -29,6 +29,8 @@
               <label><input type="radio" name="plate-type" value="blank" checked> <span class="swatch" data-role="blank"></span> Blank</label>
               <label><input type="radio" name="plate-type" value="standard"> <span class="swatch" data-role="standard"></span> Standard</label>
               <label><input type="radio" name="plate-type" value="sample"> <span class="swatch" data-role="sample"></span> Sample</label>
+              <label><input type="radio" name="plate-type" value="positive"> <span class="swatch" data-role="positive"></span> Positive control</label>
+              <label><input type="radio" name="plate-type" value="negative"> <span class="swatch" data-role="negative"></span> Negative control</label>
               <label><input type="radio" name="plate-type" value="empty"> <span class="swatch" data-role="empty"></span> Empty</label>
             </div>
           </fieldset>
@@ -50,6 +52,38 @@
           <button type="button" id="clear-plate" class="button-quiet">Clear plate</button>
         </div>
       </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Standards</legend>
+      <p class="hint">Each standard needs a number, its concentration, and two optical densities. The average is the mean of those two readings.</p>
+      <div class="table-scroll">
+        <table class="standards-table">
+          <thead>
+            <tr>
+              <th scope="col">Standard</th>
+              <th scope="col">Concentration</th>
+              <th scope="col">OD 1</th>
+              <th scope="col">OD 2</th>
+              <th scope="col">Average</th>
+              <th scope="col"><span class="visually-hidden">Remove</span></th>
+            </tr>
+          </thead>
+          <tbody id="standards-body">
+            {% for i in range(1, 5) %}
+              <tr data-kind="standard">
+                <td><input data-field="number" inputmode="numeric" value="{{ i }}" spellcheck="false" aria-label="Standard {{ i }} number"></td>
+                <td><input data-field="concentration" inputmode="decimal" spellcheck="false" aria-label="Standard {{ i }} concentration"></td>
+                <td><input data-field="od-1" inputmode="decimal" spellcheck="false" aria-label="Standard {{ i }} optical density 1"></td>
+                <td><input data-field="od-2" inputmode="decimal" spellcheck="false" aria-label="Standard {{ i }} optical density 2"></td>
+                <td data-field="average">—</td>
+                <td><button type="button" data-action="remove-row">Remove</button></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" data-action="add-standard">Add standard</button>
     </fieldset>
 
     <fieldset>
@@ -76,38 +110,6 @@
           <p id="blank-hint" class="hint">Subtracted from every replicate before the means are taken. Leave 0 if the standards are already blanked.</p>
         </div>
       </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Standards</legend>
-      <p class="hint">Known concentrations already in the well. Two replicates each. Empty rows are ignored.</p>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Concentration</th>
-              <th scope="col">Replicate 1</th>
-              <th scope="col">Replicate 2</th>
-              <th scope="col">Mean OD</th>
-              <th scope="col">Difference</th>
-              <th scope="col"><span class="visually-hidden">Remove</span></th>
-            </tr>
-          </thead>
-          <tbody id="standards-body">
-            {% for i in range(1, 5) %}
-              <tr data-kind="standard">
-                <td><input data-field="concentration" inputmode="decimal" spellcheck="false" aria-label="Standard {{ i }} concentration"></td>
-                <td><input data-field="replicate-1" inputmode="decimal" spellcheck="false" aria-label="Standard {{ i }} replicate 1"></td>
-                <td><input data-field="replicate-2" inputmode="decimal" spellcheck="false" aria-label="Standard {{ i }} replicate 2"></td>
-                <td data-field="mean">—</td>
-                <td data-field="difference">—</td>
-                <td><button type="button" data-action="remove-row">Remove</button></td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <button type="button" data-action="add-standard">Add standard</button>
     </fieldset>
 
     <fieldset>
@@ -166,11 +168,11 @@
 
   <template id="standard-row-template">
     <tr data-kind="standard">
+      <td><input data-field="number" inputmode="numeric" spellcheck="false" aria-label="Standard number"></td>
       <td><input data-field="concentration" inputmode="decimal" spellcheck="false" aria-label="Standard concentration"></td>
-      <td><input data-field="replicate-1" inputmode="decimal" spellcheck="false" aria-label="Standard replicate 1"></td>
-      <td><input data-field="replicate-2" inputmode="decimal" spellcheck="false" aria-label="Standard replicate 2"></td>
-      <td data-field="mean">—</td>
-      <td data-field="difference">—</td>
+      <td><input data-field="od-1" inputmode="decimal" spellcheck="false" aria-label="Standard optical density 1"></td>
+      <td><input data-field="od-2" inputmode="decimal" spellcheck="false" aria-label="Standard optical density 2"></td>
+      <td data-field="average">—</td>
       <td><button type="button" data-action="remove-row">Remove</button></td>
     </tr>
   </template>

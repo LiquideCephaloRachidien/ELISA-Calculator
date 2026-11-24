@@ -10,6 +10,8 @@
   --bad: #f3c1b8;
   --info: #e4ece7;
   --sample: #d7e3f0;
+  --positive: #e4d4f2;
+  --negative: #f6d7c3;
 }
 
 * { box-sizing: border-box; }
@@ -126,6 +128,8 @@ nav form { margin: 0; }
 
 table { width: 100%; min-width: 40rem; border-collapse: collapse; }
 
+.standards-table { min-width: 36rem; }
+
 th,
 td {
   padding: 0.35rem;
@@ -186,6 +190,8 @@ input.flag-bad { background: var(--bad); }
 #plate button[data-role="blank"] { background: var(--info); }
 #plate button[data-role="standard"] { background: var(--warn); }
 #plate button[data-role="sample"] { background: var(--sample); }
+#plate button[data-role="positive"] { background: var(--positive); }
+#plate button[data-role="negative"] { background: var(--negative); }
 
 #plate button.is-selected {
   outline: 2px solid var(--accent);
@@ -218,6 +224,8 @@ input.flag-bad { background: var(--bad); }
 .swatch[data-role="blank"] { background: var(--info); }
 .swatch[data-role="standard"] { background: var(--warn); }
 .swatch[data-role="sample"] { background: var(--sample); }
+.swatch[data-role="positive"] { background: var(--positive); }
+.swatch[data-role="negative"] { background: var(--negative); }
 
 #od-editor p { margin: 0 0 0.75rem; font-weight: 600; }
 #od-editor div { margin-bottom: 0.75rem; }

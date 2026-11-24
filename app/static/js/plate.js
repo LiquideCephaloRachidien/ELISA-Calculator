@@ -20,6 +20,14 @@
   var concentrationField = document.getElementById("well-concentration-field");
   var nameField = document.getElementById("well-name-field");
 
+  var ROLE_LABELS = {
+    blank: "blank",
+    standard: "standard",
+    sample: "sample",
+    positive: "positive control",
+    negative: "negative control",
+  };
+
   var wells = {};
   var selected = "";
   var strokeActive = false;
@@ -47,8 +55,8 @@
     button.classList.toggle("is-selected", active);
     button.setAttribute("aria-pressed", active ? "true" : "false");
     var parts = ["Well " + id];
-    if (well.role !== "empty") {
-      parts.push(well.role);
+    if (ROLE_LABELS[well.role]) {
+      parts.push(ROLE_LABELS[well.role]);
     }
     if (well.od) {
       parts.push("optical density " + well.od);
