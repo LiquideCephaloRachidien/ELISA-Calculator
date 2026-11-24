@@ -160,6 +160,8 @@ input.flag-bad { background: var(--bad); }
   grid-template-columns: 1.25rem repeat(12, minmax(2.1rem, 1fr));
   gap: 4px;
   min-width: 32rem;
+  touch-action: none;
+  user-select: none;
 }
 
 .plate-label {
@@ -190,18 +192,21 @@ input.flag-bad { background: var(--bad); }
   outline-offset: 1px;
 }
 
-.plate-key {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1rem;
-  margin: 0.75rem 0 0;
-  padding: 0;
-  list-style: none;
-  color: var(--muted);
-  font-size: 0.85rem;
+#plate-controls > fieldset {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
 }
 
-.plate-key li { display: flex; align-items: center; gap: 0.35rem; }
+.choices label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.35rem 0;
+}
+
+.choices input {
+  width: auto;
+}
 
 .swatch {
   width: 0.9rem;
@@ -214,8 +219,10 @@ input.flag-bad { background: var(--bad); }
 .swatch[data-role="standard"] { background: var(--warn); }
 .swatch[data-role="sample"] { background: var(--sample); }
 
-#well-editor p { margin: 0 0 0.75rem; font-weight: 600; }
-#well-editor div { margin-bottom: 0.75rem; }
+#od-editor p { margin: 0 0 0.75rem; font-weight: 600; }
+#od-editor div { margin-bottom: 0.75rem; }
+
+#clear-plate { width: 100%; }
 
 @media (max-width: 800px) {
   .plate-layout { grid-template-columns: 1fr; }

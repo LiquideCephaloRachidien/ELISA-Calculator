@@ -9,6 +9,50 @@
 
   <form id="assay-form" autocomplete="off">
     <fieldset>
+      <legend>Plate (96 well)</legend>
+      <p class="hint">Choose Type or Optical density. Hold and drag across wells to mark them with the selected type. Click a well again to clear that mark.</p>
+      <div class="plate-layout">
+        <div class="plate-scroll">
+          <div id="plate" role="group" aria-label="96-well plate"></div>
+        </div>
+        <div id="plate-controls">
+          <fieldset>
+            <legend>Entry</legend>
+            <div class="choices">
+              <label><input type="radio" name="plate-mode" value="type" checked> Type</label>
+              <label><input type="radio" name="plate-mode" value="od"> Optical density</label>
+            </div>
+          </fieldset>
+          <fieldset id="type-picker">
+            <legend>Type</legend>
+            <div class="choices">
+              <label><input type="radio" name="plate-type" value="blank" checked> <span class="swatch" data-role="blank"></span> Blank</label>
+              <label><input type="radio" name="plate-type" value="standard"> <span class="swatch" data-role="standard"></span> Standard</label>
+              <label><input type="radio" name="plate-type" value="sample"> <span class="swatch" data-role="sample"></span> Sample</label>
+              <label><input type="radio" name="plate-type" value="empty"> <span class="swatch" data-role="empty"></span> Empty</label>
+            </div>
+          </fieldset>
+          <div id="od-editor" hidden>
+            <p id="well-label">Click a well</p>
+            <div>
+              <label for="well-od">Optical density</label>
+              <input id="well-od" inputmode="decimal" spellcheck="false" autocomplete="off" disabled>
+            </div>
+            <div id="well-concentration-field" hidden>
+              <label for="well-concentration">Concentration</label>
+              <input id="well-concentration" inputmode="decimal" spellcheck="false" autocomplete="off">
+            </div>
+            <div id="well-name-field" hidden>
+              <label for="well-name">Sample name</label>
+              <input id="well-name" maxlength="80" autocomplete="off">
+            </div>
+          </div>
+          <button type="button" id="clear-plate" class="button-quiet">Clear plate</button>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
       <legend>Assay</legend>
       <div class="fields">
         <div>
@@ -30,45 +74,6 @@
           <label for="blank-od">Blank optical density</label>
           <input id="blank-od" name="blank_od" inputmode="decimal" value="0" spellcheck="false" aria-describedby="blank-hint">
           <p id="blank-hint" class="hint">Subtracted from every replicate before the means are taken. Leave 0 if the standards are already blanked.</p>
-        </div>
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Plate</legend>
-      <p class="hint">Click a well, then enter its optical density. A standard also needs the concentration in that well. A sample needs a name.</p>
-      <div class="plate-layout">
-        <div class="plate-scroll">
-          <div id="plate" role="group" aria-label="96-well plate"></div>
-          <ul class="plate-key">
-            <li><span class="swatch" data-role="blank"></span> Blank</li>
-            <li><span class="swatch" data-role="standard"></span> Standard</li>
-            <li><span class="swatch" data-role="sample"></span> Sample</li>
-          </ul>
-        </div>
-        <div id="well-editor" hidden>
-          <p id="well-label"></p>
-          <div>
-            <label for="well-od">Optical density</label>
-            <input id="well-od" inputmode="decimal" spellcheck="false" autocomplete="off">
-          </div>
-          <div>
-            <label for="well-role">Role</label>
-            <select id="well-role">
-              <option value="empty">Empty</option>
-              <option value="blank">Blank</option>
-              <option value="standard">Standard</option>
-              <option value="sample">Sample</option>
-            </select>
-          </div>
-          <div id="well-concentration-field" hidden>
-            <label for="well-concentration">Concentration</label>
-            <input id="well-concentration" inputmode="decimal" spellcheck="false" autocomplete="off">
-          </div>
-          <div id="well-name-field" hidden>
-            <label for="well-name">Sample name</label>
-            <input id="well-name" maxlength="80" autocomplete="off">
-          </div>
         </div>
       </div>
     </fieldset>
