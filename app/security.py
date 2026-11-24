@@ -4,8 +4,7 @@ Passwords go through Werkzeug's generate_password_hash (scrypt). Do not
 replace this with hashlib — a bare SHA-256 has no salt and is not a
 password hash.
 
-Login and registration themselves are still milestone 3. These helpers
-are the pieces those routes must use.
+Login and registration use these helpers.
 """
 
 import secrets

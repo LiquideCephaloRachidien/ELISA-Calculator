@@ -1,6 +1,8 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
-from app.security import validate_csrf
+from app.security import hash_password, safe_next, validate_csrf, verify_password
+from app.storage import find_user_id, new_id, read_index, read_user, write_index, write_user
+from app.validation import parse_login, parse_registration
 
 bp = Blueprint("auth", __name__)
 
@@ -9,12 +11,30 @@ bp = Blueprint("auth", __name__)
 def login():
     if request.method == "POST":
         validate_csrf()
-        # Milestone 3:
-        # - parse_login; one error message for unknown email and bad password
-        # - session.clear() before session["user_id"] = ... (session fixation)
-        # - redirect to safe_next(request.form.get("next"))
-        flash("Sign-in is not built yet.", "info")
-        return redirect(url_for("auth.login"))
+        next_url = request.form.get("next", "")
+        try:
+            credentials = parse_login(request.form)
+        except ValueError as error:
+            flash(str(error), "error")
+            return render_template(
+                "login.html",
+                next_url=next_url,
+                email=request.form.get("email", ""),
+            )
+        user_id = find_user_id(credentials["email"])
+        record = read_user(user_id) if user_id else None
+        password_hash = record.get("password_hash", "") if isinstance(record, dict) else ""
+        if not isinstance(password_hash, str) or not verify_password(credentials["password"], password_hash):
+            flash("Email or password is incorrect.", "error")
+            return render_template(
+                "login.html",
+                next_url=next_url,
+                email=credentials["email"],
+            )
+        session.clear()
+        session["user_id"] = user_id
+        flash("You are logged in.", "info")
+        return redirect(safe_next(next_url))
     return render_template("login.html", next_url=request.args.get("next", ""))
 
 
@@ -22,10 +42,41 @@ def login():
 def register():
     if request.method == "POST":
         validate_csrf()
-        # Milestone 3: parse_registration, hash_password, reject duplicate email,
-        # write the user file and the index, then start a session as in login.
-        flash("Registration is not built yet.", "info")
-        return redirect(url_for("auth.register"))
+        try:
+            account = parse_registration(request.form)
+        except ValueError as error:
+            flash(str(error), "error")
+            return render_template(
+                "register.html",
+                email=request.form.get("email", ""),
+                display_name=request.form.get("display_name", ""),
+            )
+        email = account["email"]
+        if find_user_id(email):
+            flash("An account with that email already exists.", "error")
+            return render_template(
+                "register.html",
+                email=email,
+                display_name=account["display_name"],
+            )
+        user_id = new_id()
+        write_user(
+            user_id,
+            {
+                "id": user_id,
+                "email": email,
+                "display_name": account["display_name"],
+                "password_hash": hash_password(account["password"]),
+                "runs": [],
+            },
+        )
+        index = read_index()
+        index["users"].append({"id": user_id, "email": email})
+        write_index(index)
+        session.clear()
+        session["user_id"] = user_id
+        flash("Account created.", "info")
+        return redirect(url_for("dashboard.index"))
     return render_template("register.html")
 
 
